@@ -1,0 +1,8 @@
+{
+  "name": "Vue Dev",
+  "dockerComposeFile": ["../docker-compose.yml"],
+  "service": "vue",
+  "shutdownAction": "none",
+  "workspaceFolder": "/workspace/client",
+  "extensions": ["Vue.volar"]
+}

@@ -1,0 +1,8 @@
+{
+  "name": "Flask Dev",
+  "dockerComposeFile": ["../docker-compose.yml"],
+  "service": "flask",
+  "shutdownAction": "none",
+  "workspaceFolder": "/workspace/server",
+  "extensions": ["ms-python.python"]
+}

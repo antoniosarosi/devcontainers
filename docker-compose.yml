@@ -1,0 +1,68 @@
+version: '3.9'
+
+services:
+  pipenv:
+    container_name: test-app-pipenv
+    build:
+      dockerfile: ./server/Dockerfile
+      target: builder
+    image: test-app/pipenv-mysql-dev
+    # user: ${DOCKER_USER}
+    command: pipenv install
+    volumes: 
+      - ./server:/code
+
+  flask:
+    container_name: test-app-flask
+    image: test-app/pipenv-mysql-dev
+    # user: ${DOCKER_USER}
+    ports:
+      - 5000:5000
+    depends_on:
+      pipenv:
+        condition: service_completed_successfully
+      mysql:
+        condition: service_healthy
+    command: pipenv run flask --app src/app.py --debug run --host 0.0.0.0
+    volumes:
+      - ./server:/code
+      - ./:/workspace:cached
+
+  mysql:
+    image: mysql
+    container_name: test-app-mysql
+    environment:
+      MYSQL_DATABASE: app
+      MYSQL_ROOT_PASSWORD: root
+    healthcheck:
+      test: mysql -h 127.0.0.1 -u root -p$$MYSQL_ROOT_PASSWORD -e "SELECT '1'" $$MYSQL_DATABASE
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  npm:
+    image: node
+    # user: ${DOCKER_USER}
+    container_name: test-app-npm
+    working_dir: /code
+    volumes:
+      - ./client:/code
+    command: npm install
+
+  vue:
+    image: node
+    # user: ${DOCKER_USER}
+    container_name: test-app-vue
+    working_dir: /code
+    volumes:
+      - ./client:/code
+      - ./:/workspace:cached
+    ports:
+      - 5173:5173
+    depends_on:
+      npm:
+        condition: service_completed_successfully
+      flask:
+        condition: service_started
+    command: npm run dev -- --host
