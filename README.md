@@ -27,6 +27,12 @@ docker compose exec --user root flask useradd -m -s /bin/bash $USER
 docker compose exec --user root vue useradd -m -s /bin/bash $USER
 ```
 
+### Migrations
+
+```bash
+docker compose exec -it flask pipenv run flask --app src/app.py db upgrade
+```
+
 ## Local
 
 ### Backend
